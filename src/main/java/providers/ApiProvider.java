@@ -5,6 +5,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
+
 public class ApiProvider {
     public static void filters() {
         RestAssured.filters(new RequestLoggingFilter(System.out), new ResponseLoggingFilter(System.out));

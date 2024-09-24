@@ -1,8 +1,6 @@
 package dto;
 
 
-import java.util.List;
-
 public class User {
     private String username;
     private String password;
@@ -64,30 +62,6 @@ public class User {
             this.price = price;
         }
     }
-
-    public class Cart {
-        private List<Product> items;
-        private double totalPrice;
-
-        public Cart(List<Product> items, double totalPrice) {
-            this.items = items;
-            this.totalPrice = totalPrice;
-        }
-
-        public List<Product> getItems() {
-            return items;
-        }
-
-        public void setItems(List<Product> items) {
-            this.items = items;
-        }
-
-        public double getTotalPrice() {
-            return totalPrice;
-        }
-
-        public void setTotalPrice(double totalPrice) {
-            this.totalPrice = totalPrice;
-        }
-    }
 }
+
+

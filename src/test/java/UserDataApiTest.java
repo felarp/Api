@@ -1,17 +1,21 @@
 import accertions.HttpAssertions;
-import dto.CartResponse;
+import dto.Cart;
+import dto.CartRequest;
 import dto.ResponseMessage;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import dto.User;
+
+import java.util.List;
 
 class UserDataApiTest extends BaseApiTest {
 
     private static String token;
 
     @BeforeAll
-    public static void setUp() {
+    public static void getToken() {
         token = getValidToken();
     }
     private static String getValidToken() {
@@ -29,7 +33,7 @@ class UserDataApiTest extends BaseApiTest {
                 .statusCode(200)
                 .assertionsJsonPathValueNotEmpty("access_token");
         ResponseMessage responseMessage = new ResponseMessage("User registered successfully", user);
-        responseMessage.getMessage();
+        System.out.println(responseMessage.getMessage());
     }
 
     @Test
@@ -46,9 +50,10 @@ class UserDataApiTest extends BaseApiTest {
 
     @Test
     public void testGetProductList() {
-        apiProvider.get("/products", token).then().statusCode(200);
-        CartResponse cartResponse = new CartResponse();
-        cartResponse.getCart();
+        apiProvider.get("/products", token).then().statusCode(200)
+                .extract()
+                .as(new TypeRef<List<Cart>>() {});
+
     }
 
     @Test
@@ -75,23 +80,24 @@ class UserDataApiTest extends BaseApiTest {
 
     @Test
     public void testAddExistingProductToCart() {
-        CartResponse.Cart requestBody = new CartResponse.Cart(1, 2);
+        CartRequest requestBody = new CartRequest(1, 2);
         Response response = apiProvider.post("/cart", requestBody, token);
         new HttpAssertions(response).statusCode(201);
     }
 
     @Test
     public void testAddNotExistingProductToCart() {
-        CartResponse.Cart requestBody = new CartResponse.Cart(111, 2);
+        CartRequest requestBody = new CartRequest(111, 2);
         Response response = apiProvider.post("/cart", requestBody, token);
         new HttpAssertions(response).statusCode(404);
 
     }
 
     @Test
-    public void testAddProductUnregisteredUser() {
-        CartResponse.Cart requestBody = new CartResponse.Cart(1, 2);
-        Response response = apiProvider.post("/cart", requestBody, token);
+    public void testAddProductWithInvalidToken() {
+        String wrongToken = "SGHTT";
+        CartRequest requestBody = new CartRequest(1, 2);
+        Response response = apiProvider.post("/cart", requestBody, wrongToken);
         new HttpAssertions(response).statusCode(401);
     }
 }
