@@ -47,6 +47,8 @@ class UserDataApiTest extends BaseApiTest {
     @Test
     public void testGetProductList() {
         apiProvider.get("/products", token).then().statusCode(200);
+        CartResponse cartResponse = new CartResponse();
+        cartResponse.getCart();
     }
 
     @Test
