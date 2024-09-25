@@ -1,14 +1,13 @@
 package accertions;
+
+
 import dto.CartResponse;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import lombok.NoArgsConstructor;
-
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-@NoArgsConstructor(force = true)
 
 public class HttpAssertions {
 
@@ -19,6 +18,11 @@ public class HttpAssertions {
     public HttpAssertions(Response response) {
         this.validatableResponse = response.then();
         this.response = response;
+    }
+    @Step("Сообщение, о статусе проверки")
+    public HttpAssertions assertMessage(String expectedMessage) {
+        validatableResponse.body("message", equalTo(expectedMessage));
+        return this;
     }
 
     @Step("Проверяем, что статус код равен '{expectStatus}'")
@@ -45,3 +49,4 @@ public class HttpAssertions {
     }
 
 }
+

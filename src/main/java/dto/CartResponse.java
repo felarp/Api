@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CartResponse {
     @JsonProperty("cart")
-    List<Cart> cart;
+    List<CartResponse> cart;
 
     @JsonProperty("total_price")
     double totalPrice;

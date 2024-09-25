@@ -1,7 +1,10 @@
 import accertions.HttpAssertions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -9,7 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 
 class UserDataApiTest extends BaseApiTest {
-
+    ObjectMapper objectMapper = new ObjectMapper();
     private static String token;
     private static final User user = new User("string", "string");
 
@@ -56,25 +59,27 @@ class UserDataApiTest extends BaseApiTest {
 
     @Test
     public void testGetProductList() {
-        apiProvider.get("/products").then().statusCode(200)
-                .extract()
-                .as(new TypeRef<List<CartResponse>>() {});
+        ValidatableResponse validatableResponse = apiProvider.get("/products").then().statusCode(200);
+        List<CartResponse> cartResponses = validatableResponse.extract().as(new TypeRef<>() {});
+        HttpAssertions assertions = new HttpAssertions((Response) cartResponses);
+        assertions.validateCartResponse()
+                .statusCode(200)
+                .assertMessage("Got product list");
 
     }
 
     @Test
     public void testGetSpecificProduct() {
         String productId = "1";
-        Response response = apiProvider.get("/products/" + productId)
-                .then()
-                .extract().response();
-        new HttpAssertions(response)
+        ValidatableResponse validatableResponse = (ValidatableResponse) apiProvider.get("/products/" + productId);
+        List<CartResponse> cartResponses = validatableResponse.extract().as(new TypeRef<>() {});
+        HttpAssertions assertions = new HttpAssertions((Response) cartResponses);
+        assertions.validateCartResponse()
                 .statusCode(200)
-                .assertionsJsonPathValueNotEmpty("cart")
                 .validateCartResponse();
-        response.then().body("message", equalTo("Got specific product"));
-
+        validatableResponse.body("message", equalTo("Got specific product"));
     }
+
 
     @Test
     public void testGetUnrealIdProduct() {
@@ -91,21 +96,34 @@ class UserDataApiTest extends BaseApiTest {
 
     @Test
     public void testGetCustomerCart() {
-       Response response =  apiProvider.get("/cart", token)
-                .then().extract().response();
-        new HttpAssertions(response)
+        ValidatableResponse validatableResponse = apiProvider.get("/cart", token).then();
+        List<CartResponse> cartResponses = validatableResponse.extract().as(new TypeRef<>() {});
+        HttpAssertions assertions = new HttpAssertions((Response) cartResponses);
+        assertions.validateCartResponse()
                 .statusCode(200)
                 .assertionsJsonPathValueNotEmpty("cart")
                 .validateCartResponse();
-        response.then().body("message", equalTo("Got customer cart"));
+
+        validatableResponse.body("message", equalTo("Got customer cart"));
     }
+
 
     @Test
     public void testAddExistingProductToCart() {
-        CartRequest requestBody = new CartRequest(1, 2);
-        Response response = apiProvider.post("/cart", requestBody, token);
-        new HttpAssertions(response).statusCode(201);
-        response.then().body("message", equalTo("Existing product added"));
+
+        ValidatableResponse response = apiProvider.post("/cart", new CartRequest(1, 2), token).then();
+        HttpAssertions assertions = new HttpAssertions((Response) response);
+        assertions.statusCode(200)
+                .assertionsJsonPathValueNotEmpty("message");
+        String jsonResponse = response.extract().asString();
+        try {
+            CartResponse cartResponse = objectMapper.readValue(jsonResponse, CartResponse.class);
+        } catch (JsonProcessingException e) {
+
+            throw new RuntimeException(e);
+        }
+
+        response.body("message", equalTo("Existing product added"));
     }
 
     @Test
