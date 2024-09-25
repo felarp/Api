@@ -1,12 +1,8 @@
 package dto;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.Value;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-
-@NoArgsConstructor (force = true)
+@NoArgsConstructor(force = true)
 @Value
 
 public class Cart {
@@ -20,6 +16,4 @@ public class Cart {
     double discount;
 
     double price;
-
-    int quantity;
 }

@@ -1,8 +1,11 @@
 package dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CartRequest {
+
+
     @JsonProperty("product_id")
     int productId;
 
@@ -15,7 +18,4 @@ public class CartRequest {
     }
 
 }
-
-
-
 

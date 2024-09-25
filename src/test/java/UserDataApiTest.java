@@ -1,73 +1,86 @@
 import accertions.HttpAssertions;
-import dto.Cart;
-import dto.CartRequest;
-import dto.ResponseMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import dto.User;
 
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
+
 
 class UserDataApiTest extends BaseApiTest {
 
     private static String token;
+    private static final User user = new User("string", "string");
 
     @BeforeAll
-    public static void getToken() {
-        token = getValidToken();
+    public static void initializeUserData() {
+        registerUser();
+        getToken();
     }
-    private static String getValidToken() {
-        User user = new User("string", "string");
+
+    private static void registerUser() {
+        Response response = apiProvider.post("/register", user);
+        response.then().statusCode(201);
+    }
+
+    private static void getToken() {
         Response response = apiProvider.post("/login", user);
         response.then().statusCode(200);
-        return response.jsonPath().getString("access_token");
+        token = response.jsonPath().getString("access_token");
     }
 
     @Test
     public void testRegisteredUser() {
-        User user = new User("string", "string");
         Response response = apiProvider.post("/login", user);
         new HttpAssertions(response)
                 .statusCode(200)
                 .assertionsJsonPathValueNotEmpty("access_token");
-        ResponseMessage responseMessage = new ResponseMessage("User registered successfully", user);
-        System.out.println(responseMessage.getMessage());
+        response.then().body("message", equalTo("User authorized successfully"));
+
     }
 
     @Test
     public void testUnregisteredUser() {
-        User user = new User("strin", "strin");
-        apiProvider.post("/login", user).then().statusCode(401);
+        User unRegisteredUser = new User("unregistered", "user");
+        apiProvider.post("/login", unRegisteredUser).then().statusCode(401)
+                .extract().response().then().body("message", equalTo("User not registered"));
     }
+
+
 
     @Test
     public void testIncorrectPasswordUser() {
         User user = new User("string", "strin");
-        apiProvider.post("/login", user).then().statusCode(401);
+        apiProvider.post("/login", user).then().statusCode(401)
+                .extract().response().then().body("message", equalTo("Wrong password"));
     }
 
     @Test
     public void testGetProductList() {
-        apiProvider.get("/products", token).then().statusCode(200)
+        apiProvider.get("/products").then().statusCode(200)
                 .extract()
-                .as(new TypeRef<List<Cart>>() {});
+                .as(new TypeRef<List<CartResponse>>() {});
+
 
     }
 
     @Test
     public void testGetSpecificProduct() {
         String productId = "1";
-        Response response = apiProvider.get("/products/" + productId, token);
-        response.then().statusCode(200);
+        apiProvider.get("/products/" + productId, token).then().statusCode(201)
+                .extract().response().then().body("message", equalTo("Got specific product"));
+
     }
 
     @Test
     public void testGetUnrealIdProduct() {
         String productId = "111";
-        Response response = apiProvider.get("/products/" + productId, token);
-        response.then().statusCode(404);
+        apiProvider.get("/products/" + productId, token).then().statusCode(404)
+                .extract().response().then().body("message", equalTo("Got unreal product"));
     }
 
     @Test
@@ -76,6 +89,7 @@ class UserDataApiTest extends BaseApiTest {
         new HttpAssertions(response)
                 .statusCode(200)
                 .assertionsJsonPathValueNotEmpty("cart");
+        response.then().body("message", equalTo("Got customer cart"));
     }
 
     @Test
@@ -83,6 +97,7 @@ class UserDataApiTest extends BaseApiTest {
         CartRequest requestBody = new CartRequest(1, 2);
         Response response = apiProvider.post("/cart", requestBody, token);
         new HttpAssertions(response).statusCode(201);
+        response.then().body("message", equalTo("Existing product added"));
     }
 
     @Test
@@ -90,6 +105,7 @@ class UserDataApiTest extends BaseApiTest {
         CartRequest requestBody = new CartRequest(111, 2);
         Response response = apiProvider.post("/cart", requestBody, token);
         new HttpAssertions(response).statusCode(404);
+        response.then().body("message", equalTo("Product not added to cart"));
 
     }
 

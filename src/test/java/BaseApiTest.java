@@ -12,6 +12,6 @@ public class BaseApiTest {
     public static void setUp() {
         RestAssured.baseURI = "http://9b142cdd34e.vps.myjino.ru:49268";
         RestAssured.basePath = "";
-        apiProvider.filters();
+        ApiProvider.filters();
     }
 }
