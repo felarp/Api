@@ -1,10 +1,9 @@
 package dto;
-
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+@Getter
 
 public class CartRequest {
-
 
     @JsonProperty("product_id")
     int productId;

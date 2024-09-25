@@ -1,5 +1,4 @@
 package accertions;
-
 import dto.CartResponse;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;

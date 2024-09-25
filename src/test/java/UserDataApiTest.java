@@ -1,13 +1,10 @@
 import accertions.HttpAssertions;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.hamcrest.Matchers.equalTo;
 
 
@@ -25,6 +22,7 @@ class UserDataApiTest extends BaseApiTest {
         Response response = apiProvider.post("/register", user);
         response.then().statusCode(200);
     }
+
     private static void getToken() {
         Response response = apiProvider.post("/login", user);
         response.then().statusCode(200);
@@ -49,7 +47,6 @@ class UserDataApiTest extends BaseApiTest {
     }
 
 
-
     @Test
     public void testIncorrectPasswordUser() {
         User user = new User("string", "strin");
@@ -62,7 +59,6 @@ class UserDataApiTest extends BaseApiTest {
         apiProvider.get("/products").then().statusCode(200)
                 .extract()
                 .as(new TypeRef<List<CartResponse>>() {});
-
 
     }
 

@@ -1,9 +1,9 @@
 package dto;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
-
+@Getter
 @NoArgsConstructor(force = true)
 @Value
 
