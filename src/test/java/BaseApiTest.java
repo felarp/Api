@@ -6,7 +6,7 @@ import providers.ApiProvider;
 public class BaseApiTest {
 
     protected static ApiProvider apiProvider = new ApiProvider();
-    protected static ObjectMapper objectMapper = new ObjectMapper();
+
 
     @BeforeAll
     public static void setUp() {

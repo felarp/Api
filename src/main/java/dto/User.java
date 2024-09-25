@@ -1,12 +1,17 @@
 package dto;
 
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
+
 public class User {
 
-private String login;
+private String username;
 private String password;
 
     public User(String login, String password) {
-        this.login = login;
+        this.username = login;
         this.password = password;
     }
 }

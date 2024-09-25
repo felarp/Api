@@ -21,18 +21,16 @@ class UserDataApiTest extends BaseApiTest {
         registerUser();
         getToken();
     }
-
     private static void registerUser() {
         Response response = apiProvider.post("/register", user);
-        response.then().statusCode(201);
+        response.then().statusCode(200);
     }
-
     private static void getToken() {
         Response response = apiProvider.post("/login", user);
         response.then().statusCode(200);
         token = response.jsonPath().getString("access_token");
+        response.then().body("message", equalTo("Token got successfully"));
     }
-
     @Test
     public void testRegisteredUser() {
         Response response = apiProvider.post("/login", user);
@@ -71,24 +69,38 @@ class UserDataApiTest extends BaseApiTest {
     @Test
     public void testGetSpecificProduct() {
         String productId = "1";
-        apiProvider.get("/products/" + productId, token).then().statusCode(201)
-                .extract().response().then().body("message", equalTo("Got specific product"));
+        Response response = apiProvider.get("/products/" + productId)
+                .then()
+                .extract().response();
+        new HttpAssertions(response)
+                .statusCode(200)
+                .assertionsJsonPathValueNotEmpty("cart")
+                .validateCartResponse();
+        response.then().body("message", equalTo("Got specific product"));
 
     }
 
     @Test
     public void testGetUnrealIdProduct() {
         String productId = "111";
-        apiProvider.get("/products/" + productId, token).then().statusCode(404)
-                .extract().response().then().body("message", equalTo("Got unreal product"));
+        Response response = apiProvider.get("/products/" + productId)
+                .then()
+                .statusCode(404)
+                .extract()
+                .response();
+        response.then()
+                .body("message", equalTo("Product not found"));
     }
+
 
     @Test
     public void testGetCustomerCart() {
-        Response response = apiProvider.get("/cart", token);
+       Response response =  apiProvider.get("/cart", token)
+                .then().extract().response();
         new HttpAssertions(response)
                 .statusCode(200)
-                .assertionsJsonPathValueNotEmpty("cart");
+                .assertionsJsonPathValueNotEmpty("cart")
+                .validateCartResponse();
         response.then().body("message", equalTo("Got customer cart"));
     }
 
