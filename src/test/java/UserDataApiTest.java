@@ -63,8 +63,9 @@ class UserDataApiTest extends BaseApiTest {
         List<CartResponse> cartResponses = validatableResponse.extract().as(new TypeRef<>() {});
         HttpAssertions assertions = new HttpAssertions((Response) cartResponses);
         assertions.validateCartResponse()
-                .statusCode(200)
-                .assertMessage("Got product list");
+                .statusCode(200);
+        validatableResponse.body("messege", equalTo("Got product list"));
+
 
     }
 

@@ -18,11 +18,7 @@ public class HttpAssertions {
     public HttpAssertions(Response response) {
         this.validatableResponse = response.then();
         this.response = response;
-    }
-    @Step("Сообщение, о статусе проверки")
-    public HttpAssertions assertMessage(String expectedMessage) {
-        validatableResponse.body("message", equalTo(expectedMessage));
-        return this;
+
     }
 
     @Step("Проверяем, что статус код равен '{expectStatus}'")
